@@ -76,6 +76,7 @@ class VisitorInformationMiddleware(object):
 
         city = None
         country = None
+        country_code = None
         unit_system = None
 
         record = gi4.record_by_addr(ip)
@@ -88,6 +89,7 @@ class VisitorInformationMiddleware(object):
         if record:
             city = record['city']
             country = record['country_name']
+            country_code = record['country_code']
 
             if country in constants.COUNTRIES_WITH_IMPERIAL_SYSTEM:
                 unit_system = 'imperial'
@@ -98,6 +100,7 @@ class VisitorInformationMiddleware(object):
 
         request.visitor = {}
         request.visitor['country'] = country
+        request.visitor['country_code'] = country_code
         request.visitor['city'] = city
         request.visitor['location'] = {
             'timezone': location_timezone,
