@@ -70,7 +70,10 @@ class VisitorInformationMiddleware(object):
         - cookie_notice
     """
     def process_request(self, request):
-        ip = request.META['REMOTE_ADDR']
+        try:
+            ip = request.META[getattr(settings, 'VISITOR_INFO_IP_HEADER', 'REMOTE_ADDR')]
+        except KeyError:
+            return
 
         city = None
         country = None
@@ -81,8 +84,7 @@ class VisitorInformationMiddleware(object):
 
         if not location_timezone or not record:
             extra = {'_user': request.user, '_ip': ip}
-            logger.debug('Couldn\'t detect timezone for ip',
-                         extra=extra)
+            logger.debug("Couldn't detect timezone for ip", extra=extra)
 
         if record:
             city = record['city']
@@ -93,8 +95,7 @@ class VisitorInformationMiddleware(object):
             else:
                 unit_system = 'metric'
 
-        cookie_notice = country in \
-            constants.COOKIE_NOTICE_PARTICIPATING_COUNTRIES
+        cookie_notice = country in constants.COOKIE_NOTICE_PARTICIPATING_COUNTRIES
 
         request.visitor = {}
         request.visitor['country'] = country
@@ -105,14 +106,11 @@ class VisitorInformationMiddleware(object):
         }
 
         if request.user.is_authenticated() and request.user.get_profile():
-            # If user is logged in, add current settings
-            profile = request.user.get_profile()
-            user_timezone = \
-                getattr(profile,
-                        settings.VISITOR_INFO_PROFILE_TIMEZONE_FIELD, None)
-            user_unit_system = \
-                getattr(profile,
-                        settings.VISITOR_INFO_PROFILE_UNIT_SYSTEM_FIELD, None)
+            user = request.user
+            timezone_field = getattr(settings, 'VISITOR_INFO_PROFILE_TIMEZONE_FIELD', 'timezone')
+            user_timezone = getattr(user, timezone_field, None)
+            unit_system_field = getattr(settings, 'VISITOR_INFO_PROFILE_UNIT_SYSTEM_FIELD', 'unit_system')
+            user_unit_system = getattr(user, unit_system_field, None)
             request.visitor['user'] = {
                 'timezone': user_timezone,
                 'unit_system': user_unit_system
