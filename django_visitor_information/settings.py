@@ -22,6 +22,10 @@ BASE_DIR = os.path.realpath(os.path.dirname(__file__))
 DEFAULT_GEOIP_DATABASE_PATH = pjoin(BASE_DIR,
                                     'static/GeoLiteCity.dat')
 
+# HTTP Header to get visitor IP Address
+VISITOR_INFO_IP_HEADER = getattr(settings, 
+                                 'VISITOR_INFO_IP_HEADER', 
+                                 'REMOTE_ADDR')
 # Path to the geoip database file
 VISITOR_INFO_GEOIP_DATABASE_PATH = getattr(settings,
                                            'VISITOR_INFO_GEOIP_DATABASE_PATH',

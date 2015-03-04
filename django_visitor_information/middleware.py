@@ -40,10 +40,9 @@ class TimezoneMiddleware(object):
     def process_request(self, request):
         if request.user.is_authenticated():
             profile = request.user.get_profile()
-            user_timezone = \
-                getattr(profile,
-                        settings.VISITOR_INFO_PROFILE_TIMEZONE_FIELD,
-                        None)
+            user_timezone = getattr(profile,
+                                    settings.VISITOR_INFO_PROFILE_TIMEZONE_FIELD,
+                                    None)
 
             if not profile or not user_timezone:
                 logger.debug('Profile or timezone not available, skipping '
@@ -71,7 +70,7 @@ class VisitorInformationMiddleware(object):
     """
     def process_request(self, request):
         try:
-            ip = request.META[getattr(settings, 'VISITOR_INFO_IP_HEADER', 'REMOTE_ADDR')]
+            ip = request.META[settings.VISITOR_INFO_IP_HEADER]
         except KeyError:
             return
 
@@ -107,9 +106,9 @@ class VisitorInformationMiddleware(object):
 
         if request.user.is_authenticated() and request.user.get_profile():
             user = request.user
-            timezone_field = getattr(settings, 'VISITOR_INFO_PROFILE_TIMEZONE_FIELD', 'timezone')
+            timezone_field = settings.VISITOR_INFO_PROFILE_TIMEZONE_FIELD
             user_timezone = getattr(user, timezone_field, None)
-            unit_system_field = getattr(settings, 'VISITOR_INFO_PROFILE_UNIT_SYSTEM_FIELD', 'unit_system')
+            unit_system_field = settings.VISITOR_INFO_PROFILE_UNIT_SYSTEM_FIELD
             user_unit_system = getattr(user, unit_system_field, None)
             request.visitor['user'] = {
                 'timezone': user_timezone,
